@@ -43,6 +43,20 @@
                 <button onclick="search()">获取评估</button>
                 <div id="msg"></div>
             </div>
+            <div class="test">
+                <p>填写以下内容预估高校最低分（结果仅供参考）</p>
+                <input class="yearInput" type="number" id="Y2020" placeholder="2020最低分"/>
+                <input class="yearInput" type="number" id="Y2019" placeholder="2019最低分"/>
+                <input class="yearInput" type="number" id="Y2018" placeholder="2018最低分"/>
+                <select id="subjectOne">
+                    <option value ="lk">理科</option>
+                    <option value ="wk">文科</option>
+                </select>
+                <button onclick="getSubScorc()">获取评估</button>
+                <div id="subMsg">
+
+                </div>
+            </div>
             <div>
                 <div class="chart-container" style="margin-right: 0;" id="qs"></div>
                 <div class="chart-container" id="qss"></div>
@@ -431,6 +445,81 @@
             }
         }
         return res
+    }
+    var subMsg = document.getElementById('subMsg')
+    function getSubScorc() {
+        subMsg.innerHTML = ''
+        const y2020 = document.getElementById('Y2020').value
+        const y2019 = document.getElementById('Y2019').value
+        const y2018 = document.getElementById('Y2018').value
+        const subject = document.getElementById('subjectOne').value
+        if (y2020 && y2019 && y2018 && subject) {
+            const arr = [y2020, y2019, y2018]
+            const ya = [2020, 2019, 2018]
+            const res = arr.map((el, index) => {
+                return initSubmsg(el, subject, ya[index])
+            })
+            const rs = res.map((el, index) => {
+                return getThissub(el, ya[index], subject)
+            })
+            rs.map(el => {
+                subMsg.appendChild(el.el)
+            })
+        }
+    }
+
+    function initSubmsg(v, s, y) {
+        v = Number(v)
+        const temp = data[`gk${y}${s}`]
+        if (temp) {
+            const res = temp.list.filter(el => {
+                if(el.score.length > 1) {
+                    if (el.score[0]<= v && el.score[1] >= v) {
+                        return true
+                    } else {
+                        return false
+                    }
+                } else {
+                    if (el.score[0] === v) {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+            })
+            if (res.length) {
+                const p = Number((res[0].total / temp.sun).toFixed(4))
+                return p
+            } else {
+                return 0
+            }
+
+        }
+    }
+
+    function getThissub(p, year, subject) {
+        const temp = data[`gk2021${subject}`]
+        if (temp) {
+            const pp = temp.sun * p
+            const list = temp.list
+            let res = null
+            for (let i = 0; i < list.length; i++) {
+                if (pp < list[i].total) {
+                    if (i == 0) {
+                        res = list[i]
+                    } else {
+                        res = list[i - 1]
+                    }
+                    break
+                }
+            }
+            const pel = document.createElement('p')
+            pel.innerText = `${year}: 该校该科最低分在全市的占比为${p}.预计今年最低分值为：${res.rank}起。（特殊分段参考价值低）`
+            return {
+                p,
+                el: pel
+            }
+        }
     }
 </script>
 </html>

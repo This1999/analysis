@@ -22,15 +22,15 @@ body{
     position: absolute;
     top: calc(50% - 40px);
     animation-name: loganimation;
-    animation-duration: 3s;
+    animation-duration: 5s;
     animation-iteration-count: infinite;
 }
 @keyframes loganimation {
     0%   {transform: rotate(0deg);}
-    20%  {transform: rotate(-10deg);}
-    40%  {transform: rotate(10deg);}
-    60%  {transform: rotate(-10deg);}
-    80%  {transform: rotate(10deg);}
+    20%  {transform: rotate(-20deg);}
+    40%  {transform: rotate(20deg);}
+    60%  {transform: rotate(-30deg);}
+    80%  {transform: rotate(30deg);}
     100% {transform: rotate(0deg);}
 }
   
@@ -99,6 +99,11 @@ p{
     background: #f5f5f5;
     border-radius: 3px;
 }
+#subMsg{
+    padding: 5px;
+    background: #f5f5f5;
+    border-radius: 3px;
+}
 button{
     background: #0077ff;
     border: none;
@@ -117,6 +122,16 @@ button{
     margin: 2px;
 }
 #subject{
+    max-width: 100px;
+    margin: 2px;
+}
+
+.yearInput{
+    min-width: 100px;
+    margin: 2px;
+}
+
+#subjectOne{
     max-width: 100px;
     margin: 2px;
 }
