@@ -2,524 +2,217 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./echart.js"></script>
-    <script src="./data.js"></script>
-    <link rel="stylesheet" href="./index.css">
-    <link rel="icon" href="./icon.png" type="image/x-icon"/> 
-    <title>Analysis</title>
+    <title>Document</title>
+    <style>
+        .action{
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-items: center;
+        }
+    </style>
 </head>
 <body>
-    <div id="modal" class="modal">
-        <div class="logo">
-            <span class="logo-span">Analysis</span>
-            <br>
-            <span class="logo-span" style="font-size: 16px;">Chong-Qing</span>
-            <br>
-            <span class="logo-span" style="font-size: 8px;">加载中...</span>
-        </div>
-    </div>
-    <div>
-        <h4 class="tie">
-            数据来源:"中国教育在线",地点:重庆市.此处只做分析,结果仅供参考! （2018数据不全，参考价值较低）
-        </h4>
-    </div>
-    <div class="outer">
-        <div class="main" id="main">
-            <div class="test">
-                <input type="number" min="0" max="750" id="score" placeholder="输入分数"/>
-                <select id="year">
-                    <option value ="2021">2021</option>
-                    <option value ="2020">2020</option>
-                    <option value ="2019">2019</option>
-                    <option value ="2018">2018</option>
-                    <option value ="2017">2017</option>
-                    <option value ="2016">2016</option>
-                </select>
-                <select id="subject">
-                    <option value ="l">理科</option>
-                    <option value ="w">文科</option>
-                </select>
-                <button onclick="search()">获取评估</button>
-                <div id="msg"></div>
-            </div>
-            <div class="test">
-                <p>填写以下内容预估高校最低分（结果仅供参考）</p>
-                <input class="yearInput" type="number" id="Y2020" placeholder="2020最低分"/>
-                <input class="yearInput" type="number" id="Y2019" placeholder="2019最低分"/>
-                <input class="yearInput" type="number" id="Y2018" placeholder="2018最低分"/>
-                <select id="subjectOne">
-                    <option value ="lk">理科</option>
-                    <option value ="wk">文科</option>
-                </select>
-                <button onclick="getSubScorc()">获取评估</button>
-                <div id="subMsg">
-
-                </div>
-            </div>
-            <div>
-                <div class="chart-container" style="margin-right: 0;" id="qs"></div>
-                <div class="chart-container" id="qss"></div>
-            </div>
-            <div class="main" id="maindiv">
-
-            </div>
+    <div class="action">
+        <div>
+            <button onclick="playSong()">play</button>
+            <button onclick="playWitgBiq()">playWitgBiq</button>
+            <button onclick="playWithConver()">playWithConver</button>
+            <button onclick="full()">full</button>
         </div>
     </div>
 </body>
-<script>
-    var modal = document.getElementById('modal')
-    // 两秒后卸载载入动画
-    setTimeout(() => {
-        document.body.removeChild(modal)
-    }, 5000)
+    <script>
+        // 获取音频
+        var audioSoure = document.createElement('audio')
+        audioSoure.src = './demo1.mp3'
+        audioSoure.controls = true
+        document.body.appendChild(audioSoure)
+        // 创建上下文
+        var audiuoCtx = new AudioContext()
+        // 创建源
+        var source = audiuoCtx.createMediaElementSource(audioSoure)
 
-    var mainDiv = document.getElementById('maindiv')
+        var AnalyserNode1 = audiuoCtx.createAnalyser()
+        var arr1 = new Uint8Array(AnalyserNode1.frequencyBinCount)
 
-    const order = ['gk2021lk', 'gk2021wk', 'gk2020lk', 'gk2020wk', 'gk2019lk', 'gk2019wk', 'gk2018lk', 'gk2018wk', 'gk2017lk', 'gk2017wk', 'gk2016lk', 'gk2016wk',]
-    function initQS() {
-        const yearList = [ 2021, 2019, 2018, 2017, 2016]
-        const option = {
-            title: {
-                text: '本科线上占比走势(2018数据缺失不全)',
-                left: 5
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            xAxis: {
-                type: 'category',
-                data: yearList
-            },
-            legend: {
-                data: ['理科(物理)', '文科(历史)']
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [
-                {
-                data: [],
-                type: 'line',
-                smooth: true
-                },
-                {
-                data: [],
-                type: 'line',
-                smooth: true
-                }
-            ]
-        }
-        yearList.map(el => {
-            for (const key in data) {
-                if (key.includes(el)) {
-                    if(key.includes('lk')) {
-                        option.series[0].data.push(data[key].proportion)
-                    } else {
-                        option.series[1].data.push(data[key].proportion)
-                    }
-                }
-            }
-        })
-        const QS = document.getElementById('qs')
-        const qse = echarts.init(QS)
-        option && qse.setOption(option)
-    }
-    initQS()
+        var AnalyserNode2 = audiuoCtx.createAnalyser()
+        var arr2 = new Uint8Array(AnalyserNode2.frequencyBinCount)
 
-    function initQSS() {
-        const yearList = [ 2021, 2019, 2018, 2017, 2016]
-        const option = {
-            tooltip: {
-                trigger: 'axis'
-            },
-            title: {
-                text: '本科线上人数',
-                left: 5
-            },
-            xAxis: {
-                type: 'category',
-                data: yearList
-            },
-            legend: {
-                right: 5,
-                data: ['理科(物理)', '文科(历史)']
-            },
-            yAxis: {
-                type: 'value',
-                show: false
-            },
-            series: [
-                {
-                    name: '理科(物理)',
-                    data: [],
-                    type: 'line',
-                    smooth: true
-                },
-                {
-                    name: '文科(历史)',
-                    data: [],
-                    type: 'line',
-                    smooth: true
-                }
-            ]
-        }
-        yearList.map(el => {
-            for (const key in data) {
-                if (key.includes(el)) {
-                    if(key.includes('lk')) {
-                        option.series[0].data.push(data[key].theBatchTowPeopleSun)
-                    } else {
-                        option.series[1].data.push(data[key].theBatchTowPeopleSun)
-                    }
-                }
-            }
-        })
-        const QSS = document.getElementById('qss')
-        const qsse = echarts.init(QSS)
-        option && qsse.setOption(option)
-    }
-    initQSS()
-    const option = {
-        title: {
-            text: '',
-            left: 5
-        },
-        // toolbox: {
-        //     feature: {
-        //         dataZoom: {
-        //             yAxisIndex: false
-        //         },
-        //         saveAsImage: {
-        //             pixelRatio: 2
-        //         }
-        //     }
-        // },
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'shadow'
-            }
-        },
-        grid: {
-            bottom: 90
-        },
-        dataZoom: [{
-            type: 'inside'
-        }, {
-            type: 'slider'
-        }],
-        xAxis: {
-            data: [],
-            silent: false,
-            splitLine: {
-                show: false
-            },
-            splitArea: {
-                show: false
-            }
-        },
-        yAxis: {
-            splitArea: {
-                show: false
-            }
-        },
-        series: [{
-            type: 'bar',
-            data: [],
-            large: true,
-            itemStyle: {
-                color: '#0077ff'
-            }
-        }],
-    }
+        var AnalyserNode3 = audiuoCtx.createAnalyser()
+        var arr3 = new Uint8Array(AnalyserNode3.frequencyBinCount)
 
-    const option1 = {
-        tooltip: {
-            trigger: 'axis',
-            formatter: '{b}分以上人数: {c}'
-        },
-        title: {
-            left: 'left',
-            text: '',
-        },
-        // toolbox: {
-        //     feature: {
-        //         dataZoom: {
-        //             yAxisIndex: 'none'
-        //         },
-        //         restore: {},
-        //         saveAsImage: {}
-        //     }
-        // },
-        xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: []
-        },
-        yAxis: {
-            show: false,
-            type: 'value',
-        },
-        dataZoom: [{
-            type: 'inside'
-        }, {
-            type: 'slider'
-        }],
-        series: [
-            {
-                name: '走向',
-                type: 'line',
-                symbol: 'none',
-                sampling: 'lttb',
-                itemStyle: {
-                    color: 'rgb(138, 42, 226)'
-                },
-                areaStyle: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                        offset: 0,
-                        color: 'rgb(255, 192, 203)'
-                    }, {
-                        offset: 1,
-                        color: 'rgb(138, 42, 226)'
-                    }])
-                },
-                data: []
-            }
-        ]
-    };
-    function init() {
-        var chartList = []
-        var chartList1 = []
-        order.map((el, index) => {
-        const container = document.createElement('div')
-        container.className = 'chart-container'
-        const container1 = document.createElement('div')
-        container1.className = 'chart-container'
-        mainDiv.appendChild(container)
-        mainDiv.appendChild(container1)
-        const eChart = echarts.init(container)
+        var destination = audiuoCtx.destination
 
-        const option = initOption(data[el], el)
-        const eChart1 = echarts.init(container1)
+        var grain = audiuoCtx.createGain();
 
-        const option1 = initOption1(data[el], el)
-
-        option && eChart.setOption(option)
-        option1 && eChart1.setOption(option1)
-        })
-    }
-
-    function initOption(data, el) {
-        const opt = JSON.parse(JSON.stringify(option))
-        opt.title.text = name[el] + '成绩情况'
-        opt.xAxis.data = data.list.map(el => el.score[0])
-        opt.series[0].data = data.list.map(el => {
-            if (data.theBatchOne && el.rank > data.theBatchOne) {
-                return  {
-                    value: el.num,
-                    itemStyle: {
-                        color: '#FFC0CB'
-                    }
-                }
-            } else if (el.rank > data.theBatchTow) {
-                return  {
-                    value: el.num,
-                    itemStyle: {
-                        color: '#8A2BE2'
-                    }
-                }
+        var flag = 0
+        function clearnEffect() {
+            if(flag === 0) {
+                return 
+            } else if(flag === 1) {
+                source.disconnect(destination)
             } else {
-                return el.num
+                source.disconnect(grain)
             }
-        })
-        return opt
-    }
-    function initOption1(data, el) {
-        const opt = JSON.parse(JSON.stringify(option1))
-        opt.title.text = '分数 - 人数情况'
-        opt.xAxis.data = data.list.map(el => el.score[0])
-        opt.series[0].data = data.list.map(el => el.total)
-        return opt
-    }
-
-    init()
-
-    function search() {
-        const score = document.getElementById('score').value
-        const year = Number(document.getElementById('year').value)
-        const subject = document.getElementById('subject').value
-        const msgdiv = document.getElementById('msg')
-        msgdiv.innerHTML = ''
-        console.log(score, year, subject)
-        if (score > 0 && score <= 750 && year >= 2016 && year <= 2021 && subject) {
-            const params = {
-                score: Number(score),
-                year,
-                key: `gk${year}${subject === 'l' ? 'lk' : 'wk'}`,
-                subject: subject === 'l' ? 'lk' : 'wk',
-                subjectName: subject === 'l' ? '理科' : '文科'
-            }
-            const dataT = getThisYearInfo(params)
-            if (dataT) {
-                const pel = document.createElement('p')
-                pel.innerText = `${params.year + params.subjectName}: 你的分数：${score} ,此分数段共有${dataT.num}人, 今年该科总人数${dataT.sun}人，本科分数线：${dataT.theBatchTow}，一本分数线: ${dataT.theBatchOne ? dataT.theBatchOne : '无'}. 到达本科线的比例为${dataT.proportion}。
-                你的全市排名为：前${dataT.total}名，在全市比例为:${(dataT.total / dataT.sun).toFixed(4)}`
-                params.selfProportion = Number((dataT.total / dataT.sun).toFixed(4))
-                msgdiv.appendChild(pel)
-            }
-            const dataO = getOtherYearInfo(params)
-
-            dataO.map(el => {
-                msgdiv.appendChild(el.el)
-            })
         }
-    }
-
-    function getThisYearInfo(params) {
-        const thisYeardata = data[params.key].list.filter(el => {
-            if(el.score.length === 1) {
-                if (params.score === el.score[0]) {
-                    return true
-                } else {
-                    return false
-                }
-            } else {
-                if (params.score <= el.score[1] &&params.score >= el.score[0]) {
-                    return true
-                } else {
-                    return false
-                }
-            }
-        })
-        if (thisYeardata.length) {
-            thisYeardata[0].sun =  data[params.key].sun
-            thisYeardata[0].specialBatch =  data[params.key].specialBatch
-            thisYeardata[0].specialty =  data[params.key].specialty
-            thisYeardata[0].theBatchTow =  data[params.key].theBatchTow
-            thisYeardata[0].theBatchTowPeopleSun =  data[params.key].theBatchTowPeopleSun
-            thisYeardata[0].proportion = data[params.key].proportion
-            return thisYeardata[0]
-        } else {
-            return null
+        function playSong() {
+            clearnEffect()
+            flag = 1
+            source.connect(AnalyserNode1)
+            source.connect(destination)
         }
-    }
-    function getOtherYearInfo(params) {
-        const keyList = order.filter(el => {
-            if (el.includes(params.subject) && !el.includes(params.year)) {
-                return true
-            } else {
-                return false
-            }
-        })
-        const ele = keyList.map(el => {
-            const temp = data[el]
-            const PP = Number(temp.sun) * params.selfProportion
-
-            const res = getPPnum(temp, PP)
-
-            const H = el + ''
-            const header = H.replace('gk', '高考').replace('lk', '理科').replace('wk', '文科')
-            const pel = document.createElement('p')
-            pel.innerText = `${header} 总人数为：${temp.sun}, 本科线：${temp.theBatchTow}, 全市本科比例为：${temp.proportion}, 一本分数线：${temp.theBatchOne? temp.theBatchOne : '无'}。
-            你的成绩约相当于这年的成绩${res.score}分, 排名：约前${res.total}名。`
-            return {
-                info: res,
-                el: pel
-            }
-        })
-        return ele
-    }
-    function getPPnum(temp, pp) {
-        let res = {}
-        const list = temp.list
-        for (let i = 0; i < list.length; i++) {
-            const el = list[i]
-            if (pp < el.total) {
+        function playWitgBiq() {
+            clearnEffect()
+            flag = 2
+            source.connect(grain)
+            bandBiquadFilters(audiuoCtx, source, destination)
+        }
+        function bandBiquadFilters(ctx, source, target) {
+            const biquadFilters = []
+            let out = source
+            filters = []
+            const arr = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000]
+            const JH = [6, 4, -5, 2, 3, 4, 4, 5, 5, 6]
+            arr.forEach((el, i) => {
+                const filter = ctx.createBiquadFilter()
                 if (i === 0) {
-                    res = el
+                    filter.type = "lowshelf";
+                } else if (i === arr.length - 1) {
+                    filter.type = "highshelf";
                 } else {
-                    res = list[i - 1]
+                    filter.type = "peaking";
                 }
-                break
-            }
-        }
-        return res
-    }
-    var subMsg = document.getElementById('subMsg')
-    function getSubScorc() {
-        subMsg.innerHTML = ''
-        const y2020 = document.getElementById('Y2020').value
-        const y2019 = document.getElementById('Y2019').value
-        const y2018 = document.getElementById('Y2018').value
-        const subject = document.getElementById('subjectOne').value
-        if (y2020 && y2019 && y2018 && subject) {
-            const arr = [y2020, y2019, y2018]
-            const ya = [2020, 2019, 2018]
-            const res = arr.map((el, index) => {
-                return initSubmsg(el, subject, ya[index])
-            })
-            const rs = res.map((el, index) => {
-                return getThissub(el, ya[index], subject)
-            })
-            rs.map(el => {
-                subMsg.appendChild(el.el)
-            })
-        }
-    }
-
-    function initSubmsg(v, s, y) {
-        v = Number(v)
-        const temp = data[`gk${y}${s}`]
-        if (temp) {
-            const res = temp.list.filter(el => {
-                if(el.score.length > 1) {
-                    if (el.score[0]<= v && el.score[1] >= v) {
-                        return true
-                    } else {
-                        return false
-                    }
+                filter.frequency.value = el;
+                filter.gain.value = JH[i];
+                filters.push(filter)
+                biquadFilters.push(filter)
+                if (i < 3) {
+                    const gain = ctx.createGain()
+                    gain.gain.value = 1.2
+                    out.connect(filter)
+                    filter.connect(gain)
+                    out = gain
                 } else {
-                    if (el.score[0] === v) {
-                        return true
-                    } else {
-                        return false
-                    }
+                    out.connect(filter)
+                    out = filter
                 }
             })
-            if (res.length) {
-                const p = Number((res[0].total / temp.sun).toFixed(4))
-                return p
-            } else {
-                return 0
-            }
-
+            out.connect(AnalyserNode2)
+            out.connect(target)
+            //  返回过滤器
+            return biquadFilters
         }
-    }
 
-    function getThissub(p, year, subject) {
-        const temp = data[`gk2021${subject}`]
-        if (temp) {
-            const pp = temp.sun * p
-            const list = temp.list
-            let res = null
-            for (let i = 0; i < list.length; i++) {
-                if (pp < list[i].total) {
-                    if (i == 0) {
-                        res = list[i]
-                    } else {
-                        res = list[i - 1]
-                    }
-                    break
-                }
+        function playWithConver() {
+            convolver = audiuoCtx.createConvolver({channelCount: 2});
+            var request = new XMLHttpRequest()
+            request.open('GET', '/ir.wav', true)
+            request.setRequestHeader("Accept", "*/*") 
+            request.responseType = 'arraybuffer'
+            request.onload = function () {
+                var audioData = request.response
+                audiuoCtx.decodeAudioData(audioData, function (buffer) {
+                    clearnEffect()
+                    flag = 3
+                    convolver.buffer = buffer
+                    source.connect(grain)
+                    grain.connect(convolver)
+                    convolver.connect(destination)
+                    convolver.connect(AnalyserNode3)
+                },
+                function (e) { "Error with decoding audio data" + e.err })
             }
-            const pel = document.createElement('p')
-            pel.innerText = `${year}: 该校该科最低分在全市的占比为${p}.预计今年最低分值为：${res.rank}起。（特殊分段参考价值低）`
-            return {
-                p,
-                el: pel
-            }
+            request.send()
         }
-    }
-</script>
+
+        function full() {
+            convolver = audiuoCtx.createConvolver({channelCount: 2});
+            var request = new XMLHttpRequest()
+            request.open('GET', '/ir.wav', true)
+            request.setRequestHeader("Accept", "*/*") 
+            request.responseType = 'arraybuffer'
+            request.onload = function () {
+                var audioData = request.response
+                audiuoCtx.decodeAudioData(audioData, function (buffer) {
+                    convolver.buffer = buffer
+                    source.connect(AnalyserNode1)
+                    bandBiquadFilters(audiuoCtx, source, convolver)
+                    var gainNode = audiuoCtx.createGain();
+                    gainNode.gain.value = 2
+                    convolver.connect(gainNode)
+                    gainNode.connect(AnalyserNode3)
+                    gainNode.connect(destination)
+                },
+                function (e) { "Error with decoding audio data" + e.err })
+            }
+            request.send()
+        }
+        var width, height, ctx, wsize
+        function initCanvas() {
+            // height = document.body.scrollHeight
+            width = document.body.scrollWidth
+            height = window.innerHeight
+            var canvas = document.createElement('canvas')
+            canvas.width = width
+            canvas.height = height
+            document.body.appendChild(canvas)
+            ctx = canvas.getContext('2d')
+        }
+        initCanvas()
+        function draw() {
+            ctx.moveTo(0 , height - 200)
+            ctx.save()
+            ctx.fillStyle = '#0000ff'
+            ctx.fillRect(10, 100, 30, 30)
+            ctx.fill()
+            ctx.fillText('未处理', 50, 120)
+            arr1.map((el, index) => {
+                ctx.fillStyle = '#0000ff'
+                ctx.fillRect(index * wsize, height - 400 - el, wsize, 5)
+			ctx.fill()
+            })
+            ctx.stroke()
+            ctx.restore()
+            ctx.save()
+            ctx.fillStyle = '#00ff00'
+            ctx.fillRect(10, 150, 30, 30)
+            ctx.fill()
+            ctx.fillText('均衡', 50, 170)
+            ctx.moveTo(0 , height - 200)
+            arr2.map((el, index) => {
+                ctx.fillStyle = '#00ff00'
+                ctx.fillRect(index * wsize, height - 400 - el, wsize, 5)
+			ctx.fill()
+            })
+            ctx.stroke()
+            ctx.restore()
+            ctx.save()
+            ctx.fillStyle = '#ff0000'
+            ctx.fillRect(10, 200, 30, 30)
+            ctx.fill()
+            ctx.fillText('混响均衡', 50, 220)
+            ctx.moveTo(0 , height - 200)
+            arr3.map((el, index) => {
+                ctx.fillStyle = '#ff0000'
+                ctx.fillRect(index * wsize, height - 400 - el, wsize, 5)
+			    ctx.fill()
+            })
+            ctx.stroke()
+            ctx.restore()
+            
+        }
+        function render() {
+            AnalyserNode1.getByteFrequencyData ? AnalyserNode1.getByteFrequencyData(arr1) : ''
+            AnalyserNode2.getByteFrequencyData ? AnalyserNode2.getByteFrequencyData(arr2) : ''
+            AnalyserNode3.getByteFrequencyData ? AnalyserNode3.getByteFrequencyData(arr3) : ''
+            wsize = width / arr1.length
+            ctx.clearRect(0, 0, width, height);
+            draw()
+            requestAnimationFrame(render)
+        }
+        render()
+    </script>
 </html>
