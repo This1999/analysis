@@ -46,6 +46,7 @@
             destination = audiuoCtx.destination
             grain = audiuoCtx.createGain();
             source = audiuoCtx.createMediaElementSource(audioSoure)
+            render()
         }
 
         var flag = 0
@@ -109,7 +110,7 @@
         function playWithConver() {
             convolver = audiuoCtx.createConvolver({channelCount: 2});
             var request = new XMLHttpRequest()
-            request.open('GET', '/analysis/ir.wav', true)
+            request.open('GET', './ir.wav', true)
             request.setRequestHeader("Accept", "*/*") 
             request.responseType = 'arraybuffer'
             request.onload = function () {
@@ -213,6 +214,6 @@
             draw()
             requestAnimationFrame(render)
         }
-        render()
+        
     </script>
 </html>
