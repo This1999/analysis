@@ -109,7 +109,7 @@
         function playWithConver() {
             convolver = audiuoCtx.createConvolver({channelCount: 2});
             var request = new XMLHttpRequest()
-            request.open('GET', '/ir.wav', true)
+            request.open('GET', './ir.wav', true)
             request.setRequestHeader("Accept", "*/*") 
             request.responseType = 'arraybuffer'
             request.onload = function () {
