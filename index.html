@@ -17,6 +17,7 @@
 <body>
     <div class="action">
         <div>
+            <button onclick="init()">init</button>
             <button onclick="playSong()">play</button>
             <button onclick="playWitgBiq()">playWitgBiq</button>
             <button onclick="playWithConver()">playWithConver</button>
@@ -26,15 +27,20 @@
 </body>
     <script>
         // 获取音频
-        var audioSoure = document.createElement('audio')
-        audioSoure.src = './demo1.mp3'
-        audioSoure.controls = true
-        document.body.appendChild(audioSoure)
+        var audioSoure 
+        var source
+        function init() {
+            audioSoure = document.createElement('audio')
+            audioSoure.src = './demo1.mp3'
+            audioSoure.controls = true
+            document.body.appendChild(audioSoure)
+
+            source = audiuoCtx.createMediaElementSource(audioSoure)
+        }
         // 创建上下文
         var audiuoCtx = new AudioContext()
         // 创建源
-        var source = audiuoCtx.createMediaElementSource(audioSoure)
-
+         
         var AnalyserNode1 = audiuoCtx.createAnalyser()
         var arr1 = new Uint8Array(AnalyserNode1.frequencyBinCount)
 
@@ -109,7 +115,7 @@
         function playWithConver() {
             convolver = audiuoCtx.createConvolver({channelCount: 2});
             var request = new XMLHttpRequest()
-            request.open('GET', './ir.wav', true)
+            request.open('GET', '/analysis/ir.wav', true)
             request.setRequestHeader("Accept", "*/*") 
             request.responseType = 'arraybuffer'
             request.onload = function () {
