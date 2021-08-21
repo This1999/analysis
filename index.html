@@ -27,32 +27,26 @@
 </body>
     <script>
         // 获取音频
-        var audioSoure 
         var source
-        function init() {
-            audioSoure = document.createElement('audio')
-            audioSoure.src = './demo1.mp3'
-            audioSoure.controls = true
-            document.body.appendChild(audioSoure)
+        var audioSoure = document.createElement('audio')
+        audioSoure.src = './demo1.mp3'
+        audioSoure.controls = true
+        document.body.appendChild(audioSoure)
 
+        var audiuoCtx, grain,AnalyserNode1,arr1,AnalyserNode2,arr1,AnalyserNode3,arr3,destination,grain
+        function init() {
+            audiuoCtx = new AudioContext()
+            // 创建源
+            AnalyserNode1 = audiuoCtx.createAnalyser()
+            arr1 = new Uint8Array(AnalyserNode1.frequencyBinCount)
+            AnalyserNode2 = audiuoCtx.createAnalyser()
+            arr2 = new Uint8Array(AnalyserNode2.frequencyBinCount)
+            AnalyserNode3 = audiuoCtx.createAnalyser()
+            arr3 = new Uint8Array(AnalyserNode3.frequencyBinCount)
+            destination = audiuoCtx.destination
+            grain = audiuoCtx.createGain();
             source = audiuoCtx.createMediaElementSource(audioSoure)
         }
-        // 创建上下文
-        var audiuoCtx = new AudioContext()
-        // 创建源
-         
-        var AnalyserNode1 = audiuoCtx.createAnalyser()
-        var arr1 = new Uint8Array(AnalyserNode1.frequencyBinCount)
-
-        var AnalyserNode2 = audiuoCtx.createAnalyser()
-        var arr2 = new Uint8Array(AnalyserNode2.frequencyBinCount)
-
-        var AnalyserNode3 = audiuoCtx.createAnalyser()
-        var arr3 = new Uint8Array(AnalyserNode3.frequencyBinCount)
-
-        var destination = audiuoCtx.destination
-
-        var grain = audiuoCtx.createGain();
 
         var flag = 0
         function clearnEffect() {
