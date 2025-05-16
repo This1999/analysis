@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <input type="file" accept=".jpg,.png" id="file" multiple>
+  <img id="result" >
+  <script>
+    var imageData;
+    document.querySelector('#file').addEventListener('change', fileChange)
+    function fileChange(e) {
+      const files = e.target.files
+      Array.from(files).forEach(el => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          getImageData(reader.result);
+        }
+        reader.onerror = (err) => {
+          console.log(err)
+        };
+
+        reader.readAsDataURL(el)
+      })
+    }
+
+    function getImageData(url) {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => {
+        const { width, height } = img;
+        let canvas = new OffscreenCanvas(width, height);
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0)
+
+        const imgData = ctx.getImageData(0, 0, width, height)
+        if(!imageData) {
+          imageData = imgData
+        } else {
+          // 同一个画幅才有比较性
+          if(imageData.width === imgData.width && imageData.height === imageData.height) {
+            imageData = diffImage(imageData, imgData)
+          }
+
+          ctx.clearRect(0, 0, width, height);
+          ctx.putImageData(imageData, 0, 0);
+
+          canvas.convertToBlob().then(blob => {
+            const newUrl = URL.createObjectURL(blob);
+            const resImg = document.querySelector('#result')
+            resImg.src = newUrl;
+            canvas = null;
+            ctx = null;
+          });
+        }
+      }
+    }
+
+    function diffImage(d1, d2) {
+      const { width, height } = d1
+      const sd = d1.data;
+      const nd = d2.data;
+
+      for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+          const ri = (i * width * 4) + (j * 4)
+          const gi = ri + 1
+          const bi = ri + 2
+          const ai = ri + 3
+          const indexs = [ri, gi, bi]
+          // const s = indexs.map(el => sd[el])
+          const n = indexs.map(el => nd[el])
+          if(n.every(el => el > 5) && n.every(el => el < 250)) {
+            [ri, gi, bi].forEach(el => {
+              sd[el] = nd[el]
+            })
+          }
+        }
+      }
+
+      return new ImageData(sd, width, height)
+    }
+
+
+  </script>
+</body>
+</html>
